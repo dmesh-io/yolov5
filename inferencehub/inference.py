@@ -34,10 +34,9 @@ def postprocess_function(pred: torch.tensor, model, input_payload, input_paramet
     im = preprocess_function(input_payload, model, input_parameters)
     det = pred[0]   # unpack batch
     input_pre = np.ascontiguousarray(input_payload, dtype=np.uint8)
-    # input_pre = Image.fromarray(input_pre)
     annotator = Annotator(input_pre, line_width=3)
 
-    # Rescale boxes from img_size to input_pre size
+    # Rescale boxes from img_size to input_payload size
     det[:, :4] = scale_coords(im.shape[2:], det[:, :4], input_pre.shape).round()
 
     # Write results

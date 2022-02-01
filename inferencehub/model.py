@@ -37,5 +37,5 @@ class ModelWrapper(nn.Module):
             self.warmup = True
 
 
-def get_model(weights_path=None, map_location="cpu", model_initialization_parameters={}) -> torch.nn.Module:
+def get_model(weights_path=None) -> torch.nn.Module:
     return ModelWrapper(network_pkl=weights_path)
