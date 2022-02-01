@@ -29,11 +29,11 @@ def preprocess_function(input_pre: dict, model, input_parameters: dict) -> dict:
 
 
 # You need to pass a torch.tensor back.
-def postprocess_function(pred: torch.tensor, model, input_pre, input_parameters: dict) -> torch.tensor:
+def postprocess_function(pred: torch.tensor, model, input_payload, input_parameters: dict) -> torch.tensor:
     print(pred[0])
-    im = preprocess_function(input_pre, model, input_parameters)
+    im = preprocess_function(input_payload, model, input_parameters)
     det = pred[0]   # unpack batch
-    input_pre = np.ascontiguousarray(input_pre, dtype=np.uint8)
+    input_pre = np.ascontiguousarray(input_payload, dtype=np.uint8)
     # input_pre = Image.fromarray(input_pre)
     annotator = Annotator(input_pre, line_width=3)
 
