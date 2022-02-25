@@ -1,3 +1,4 @@
+import io
 import torch
 import numpy as np
 from PIL import Image
@@ -6,8 +7,9 @@ from utils.general import check_img_size, scale_coords
 from utils.plots import Annotator, colors
 
 
-def preprocess_function(input_pre: dict, model, input_parameters: dict) -> dict:
+def preprocess_function(input_pre: bytes, model, input_parameters: dict) -> dict:
     # Validate image size
+    input_pre = np.array(Image.open(io.BytesIO(input_pre))).tolist()
     imgsz = input_parameters.get('imgsz', 640)
     stride = int(model.model.stride.max())
     imgsz = check_img_size(imgsz, s=stride)
