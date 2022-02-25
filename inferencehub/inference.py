@@ -1,4 +1,3 @@
-import io
 import torch
 import numpy as np
 from PIL import Image
@@ -9,12 +8,11 @@ from utils.plots import Annotator, colors
 
 def preprocess_function(input_pre: bytes, model, input_parameters: dict) -> dict:
     # Validate image size
-    input_pre = np.array(Image.open(io.BytesIO(input_pre))).tolist()
+    nparr = np.array(Image.open(input_pre), dtype="uint8")
     imgsz = input_parameters.get('imgsz', 640)
     stride = int(model.model.stride.max())
     imgsz = check_img_size(imgsz, s=stride)
     input_parameters['imgsz'] = imgsz
-    nparr = np.asarray(input_pre, dtype="uint8")
 
     # Padded resize
     img = letterbox(nparr, imgsz, stride=stride)[0]
@@ -31,14 +29,14 @@ def preprocess_function(input_pre: bytes, model, input_parameters: dict) -> dict
 
 
 # You need to pass a torch.tensor back.
-def postprocess_function(pred: torch.tensor, model, input_payload, input_parameters: dict) -> torch.tensor:
-    im = preprocess_function(input_payload, model, input_parameters)
+def postprocess_function(pred: torch.tensor, model, input_payload, output_preprocessing) -> torch.tensor:
+    input_pre = np.array(Image.open(input_payload), dtype=np.uint8)
     det = pred[0]   # unpack batch
-    input_pre = np.ascontiguousarray(input_payload, dtype=np.uint8)
+    # input_pre = np.ascontiguousarray(input_pre, dtype=np.uint8)
     annotator = Annotator(input_pre, line_width=3)
 
     # Rescale boxes from img_size to input_payload size
-    det[:, :4] = scale_coords(im.shape[2:], det[:, :4], input_pre.shape).round()
+    det[:, :4] = scale_coords(output_preprocessing.shape[2:], det[:, :4], input_pre.shape).round()
 
     # Write results
     for *xyxy, conf, cls in reversed(det):
@@ -48,5 +46,4 @@ def postprocess_function(pred: torch.tensor, model, input_payload, input_paramet
         annotator.box_label(xyxy, label, color=colors(c, True))
 
     # Output results
-    input_pre = annotator.result()
-    return input_pre
+    return annotator.result()
